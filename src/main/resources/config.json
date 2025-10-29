@@ -1,0 +1,11 @@
+{
+  "lavalink": {
+    "host": "localhost",
+    "port": 2333,
+    "password": "youshallnotpass"
+  },
+  "player": {
+    "defaultVolume": 50,
+    "bufferDuration": 400
+  }
+}
