@@ -25,8 +25,8 @@ class MusicPlayerTest {
     
     @Test
     void testConfiguration() {
-        assertEquals("localhost", config.getLavalinkHost());
-        assertEquals(2333, config.getLavalinkPort());
+        assertEquals("lavalink.jirayu.net", config.getLavalinkHost());
+        assertEquals(13592, config.getLavalinkPort());
         assertEquals("youshallnotpass", config.getLavalinkPassword());
         assertEquals(50, config.getDefaultVolume());
     }
