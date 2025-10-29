@@ -39,7 +39,6 @@ jobs:
         fi
       
     - name: Create Release
-      if: github.ref_type == 'tag'
       uses: softprops/action-gh-release@v1
       with:
         files: |
@@ -47,9 +46,9 @@ jobs:
           build/distributions/*.zip
           build/distributions/*.tar
         draft: false
-        prerelease: false
+        prerelease: true
         generate_release_notes: true
-        name: Release ${{ steps.get_version.outputs.VERSION }}
+        name: Alpha Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
