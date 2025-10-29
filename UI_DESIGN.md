@@ -1,7 +1,7 @@
-# LavMusic UI Design Document
+# Ticly Lavamusic UI Design Document
 
 ## Overview
-The LavMusic application features a modern Material Expressive design with a clean, functional layout optimized for music playback and management.
+The Ticly Lavamusic application features a modern Material Expressive design with a clean, functional layout optimized for music playback and management.
 
 ## Color Scheme (Material Design)
 - **Primary Color**: Purple (#6200EE)
@@ -15,7 +15,7 @@ The LavMusic application features a modern Material Expressive design with a cle
 
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃                         LavMusic                                   ┃  ← App Bar (Purple)
+┃                      Ticly Lavamusic                               ┃  ← App Bar (Purple)
 ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 ┃                                                                     ┃
 ┃  ┌──────────────────────────┐  ┌──────────────────────────┐      ┃
@@ -54,7 +54,7 @@ The LavMusic application features a modern Material Expressive design with a cle
 - Background: Primary Purple (#6200EE)
 - Text: White
 - Height: 64px
-- Contains: Application title "LavMusic" in bold, 24px font
+- Contains: Application title "Ticly Lavamusic" in bold, 24px font
 - Style: Flat with slight elevation shadow
 
 ### 2. Main Content Area (Center)

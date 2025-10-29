@@ -1,4 +1,4 @@
-# LavMusic App
+# Ticly Lavamusic App
 
 A modern Java music player application featuring a Material Expressive UI design. This application is built to integrate with Lavalink for music streaming and playback.
 
@@ -77,9 +77,11 @@ lavmusic-app/
 
 ## Continuous Integration
 
-The project includes a GitHub Actions workflow that automatically builds the JAR file on every push to `main` or `develop` branches, and on pull requests.
+The project includes GitHub Actions workflows for automated builds and releases.
 
-### GitHub Actions Workflow
+### Build Workflow
+
+The "Build JAR" workflow automatically builds the JAR file on every push to `main` or `develop` branches, and on pull requests.
 
 The workflow:
 - Sets up Java 17 (Temurin distribution)
@@ -91,6 +93,26 @@ The workflow:
 You can download the built artifacts from the Actions tab in the GitHub repository after each successful build.
 
 To manually trigger a build, go to the Actions tab and run the "Build JAR" workflow using the "Run workflow" button.
+
+### Release Workflow
+
+The "Release JAR" workflow automatically creates a GitHub release when a version tag is pushed.
+
+To create a new release:
+```bash
+# Create and push a version tag
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The workflow will:
+- Build the JAR file
+- Create a GitHub release with the tag name
+- Upload the JAR file to the release
+- Upload distribution archives (ZIP/TAR)
+- Generate release notes automatically
+
+You can also manually trigger the release workflow from the Actions tab.
 
 ## Running the Application
 

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Main application class for LavMusic
+ * Main application class for Ticly Lavamusic
  */
 public class LavMusicApp extends Application {
     private static final Logger logger = LoggerFactory.getLogger(LavMusicApp.class);
@@ -20,7 +20,7 @@ public class LavMusicApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            logger.info("Starting LavMusic application...");
+            logger.info("Starting Ticly Lavamusic application...");
             
             // Load configuration
             ConfigManager config = new ConfigManager();
@@ -34,7 +34,7 @@ public class LavMusicApp extends Application {
             Scene scene = mainUI.createScene();
             
             // Setup stage
-            primaryStage.setTitle("LavMusic - Modern Music Player");
+            primaryStage.setTitle("Ticly Lavamusic - Modern Music Player");
             primaryStage.setScene(scene);
             primaryStage.setMinWidth(900);
             primaryStage.setMinHeight(650);
@@ -42,7 +42,7 @@ public class LavMusicApp extends Application {
             
             primaryStage.show();
             
-            logger.info("LavMusic application started successfully");
+            logger.info("Ticly Lavamusic application started successfully");
         } catch (Exception e) {
             logger.error("Failed to start application", e);
             throw new RuntimeException("Failed to start application", e);

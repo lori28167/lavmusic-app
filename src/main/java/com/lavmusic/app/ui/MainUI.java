@@ -14,7 +14,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
 /**
- * Main UI for the LavMusic application with Material Expressive design
+ * Main UI for the Ticly Lavamusic application with Material Expressive design
  */
 public class MainUI {
     private final MusicPlayerManager playerManager;
@@ -71,7 +71,7 @@ public class MainUI {
         appBar.setStyle("-fx-background-color: " + PRIMARY_COLOR + "; -fx-padding: 16;");
         appBar.setAlignment(Pos.CENTER_LEFT);
         
-        Label titleLabel = new Label("LavMusic");
+        Label titleLabel = new Label("Ticly Lavamusic");
         titleLabel.setFont(Font.font("System", FontWeight.BOLD, 24));
         titleLabel.setTextFill(Color.web(ON_PRIMARY));
         
