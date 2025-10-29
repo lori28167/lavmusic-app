@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class LavalinkSearchIntegrationTest {
     private static final Logger logger = LoggerFactory.getLogger(LavalinkSearchIntegrationTest.class);
+    private static final String TEST_SEARCH_QUERY = "never gonna give you up";
     
     @Test
     void testRealLavalinkSearch() {
@@ -33,8 +34,8 @@ class LavalinkSearchIntegrationTest {
             logger.info("Connection status: {}", connected ? "SUCCESS" : "FAILED");
             
             if (connected) {
-                logger.info("Searching for 'never gonna give you up'...");
-                List<Track> results = client.searchTracks("never gonna give you up");
+                logger.info("Searching for '{}'...", TEST_SEARCH_QUERY);
+                List<Track> results = client.searchTracks(TEST_SEARCH_QUERY);
                 
                 logger.info("Found {} results", results.size());
                 assertNotNull(results);

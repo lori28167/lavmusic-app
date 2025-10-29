@@ -137,8 +137,8 @@ The application configuration is located at `src/main/resources/config.json`:
 ```json
 {
   "lavalink": {
-    "host": "lavalink.jirayu.net",
-    "port": 13592,
+    "host": "localhost",
+    "port": 2333,
     "password": "youshallnotpass"
   },
   "player": {
@@ -150,13 +150,15 @@ The application configuration is located at `src/main/resources/config.json`:
 
 ### Configuration Options
 
-- **lavalink.host**: Lavalink server hostname
-- **lavalink.port**: Lavalink server port
+- **lavalink.host**: Lavalink server hostname (default: `localhost` for local server, or use `lavalink.jirayu.net` for a public instance)
+- **lavalink.port**: Lavalink server port (default: `2333` for local, `13592` for public instance)
 - **lavalink.password**: Lavalink server password (**WARNING**: Change this default password before production use!)
 - **player.defaultVolume**: Default volume level (0-100)
 - **player.bufferDuration**: Audio buffer duration in milliseconds
 
 > ⚠️ **Security Note**: The default password in the configuration is for development only. Always change it to a secure password before deploying to production, or use environment variables for sensitive credentials.
+
+> 💡 **Public Lavalink Server**: For testing without setting up your own server, you can use the public instance at `lavalink.jirayu.net:13592` (currently configured in the repository). For production use, always run your own Lavalink server.
 
 ### Search Functionality
 
