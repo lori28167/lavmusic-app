@@ -6,12 +6,29 @@ A modern Java music player application featuring a Material Expressive UI design
 
 ## Features
 
-- 🎵 **Music Playback**: Play, pause, stop, and skip tracks
-- 🔍 **Search Functionality**: Search for music tracks
+### Core Playback
+- 🎵 **Music Playback**: Play, pause, stop, skip, and previous track controls
+- ⏱️ **Track Progress**: Real-time progress indicator with seek functionality
+- 🔊 **Volume Control**: Adjustable volume slider with mute/unmute
+- 🔄 **Repeat Modes**: Off, Repeat One, and Repeat All modes
+- 🔀 **Shuffle**: Randomize queue playback order
+
+### Search & Discovery
+- 🔍 **Search Functionality**: Search for music tracks via Lavalink integration
+- 🎯 **Enter Key Support**: Quick search with Enter key
+- ❤️ **Favorites**: Mark and manage favorite tracks
+
+### Queue & Playlist Management
 - 📋 **Queue Management**: Add tracks to queue and manage playback order
+- 💾 **Playlist Creation**: Save current queue as playlists
+- 📁 **Playlist Library**: Create, load, and delete custom playlists
+
+### User Interface
 - 🎨 **Material Expressive UI**: Clean, modern interface following Material Design principles
-- 🔊 **Volume Control**: Adjustable volume slider
-- ⏱️ **Track Progress**: Visual progress indicator for currently playing track
+- ⌨️ **Keyboard Shortcuts**: Full keyboard control for all major functions
+- 📊 **Status Bar**: Real-time status and operation feedback
+- 💬 **User Feedback**: Clear error messages and success notifications
+- 🎯 **Tooltips**: Helpful hints on all interactive elements
 
 ## Technology Stack
 
@@ -185,17 +202,46 @@ To use this application with actual music streaming, you need to run a Lavalink 
 
 1. **App Bar**: Purple header with application title
 2. **Search Panel** (Left):
-   - Search input field
+   - Search input field with Enter key support
    - Search button
-   - Results list with "+" button to add to queue
+   - Results list with favorite (❤) and add (+) buttons
 3. **Queue Panel** (Right):
    - Current queue display
+   - Save playlist button (💾)
    - Clear queue button (🗑)
 4. **Player Controls** (Bottom):
    - Current track information
-   - Progress slider
-   - Play/Pause/Next buttons
-   - Volume control
+   - Progress slider with time display and seek functionality
+   - Shuffle button (🔀)
+   - Previous button (⏮)
+   - Play/Pause button (▶/⏸)
+   - Next button (⏭)
+   - Repeat button (🔁/🔂)
+   - Volume control with mute
+5. **Status Bar**: Shows current operation and version info
+
+## Keyboard Shortcuts
+
+The application supports comprehensive keyboard shortcuts for efficient control:
+
+### Playback Control
+- **Space**: Play/Pause current track
+- **Ctrl + Right Arrow**: Skip to next track
+- **Ctrl + Left Arrow**: Go to previous track (restart current)
+- **Right Arrow**: Seek forward 5 seconds
+- **Left Arrow**: Seek backward 5 seconds
+
+### Volume Control
+- **Up Arrow**: Increase volume by 5%
+- **Down Arrow**: Decrease volume by 5%
+- **M**: Mute/Unmute
+
+### Playback Modes
+- **Ctrl + S**: Toggle shuffle mode
+- **Ctrl + R**: Cycle repeat mode (Off → One → All)
+
+### Navigation
+- **Ctrl + F**: Focus search field
 
 ### Material Expressive Design
 
@@ -255,17 +301,29 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 
 This project is open source and available for educational and commercial use.
 
+## Implemented Features ✅
+
+- [x] **Full Lavalink integration** - Real-time search via Lavalink REST API
+- [x] **Playlist management** - Create, save, load, and delete playlists
+- [x] **Keyboard shortcuts** - Complete set of shortcuts for all functions
+- [x] **Favorites/liked songs** - Mark and manage favorite tracks
+- [x] **Shuffle and Repeat** - Shuffle queue and repeat modes (Off/One/All)
+- [x] **Progress tracking** - Real-time progress with seek functionality
+- [x] **Status bar** - User feedback and operation status
+
 ## Future Enhancements
 
-- [ ] Full Lavalink integration for real music streaming
-- [ ] Playlist management
-- [ ] Search from multiple sources (YouTube, SoundCloud, etc.)
-- [ ] Audio visualization
-- [ ] Equalizer controls
-- [ ] Keyboard shortcuts
+- [ ] Full audio playback via Lavalink WebSocket (currently simulated)
+- [ ] Search from multiple sources (YouTube, SoundCloud, Spotify, etc.)
+- [ ] Audio visualization and spectrum analyzer
+- [ ] Equalizer controls with presets
 - [ ] Themes and customization options
-- [ ] Recently played tracks
-- [ ] Favorites/liked songs
+- [ ] Recently played tracks history
+- [ ] Playlist sharing and import/export
+- [ ] Lyrics display
+- [ ] Discord Rich Presence integration
+- [ ] Cross-fade between tracks
+- [ ] Audio effects and filters
 
 ## Acknowledgments
 

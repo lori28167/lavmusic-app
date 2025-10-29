@@ -20,13 +20,21 @@ A complete, production-ready Java music player application with modern Material 
 - Zero security vulnerabilities (CodeQL verified)
 
 ### 3. **Features Implemented** ✅
-- ✅ Music playback controls (play, pause, stop, skip)
+- ✅ Music playback controls (play, pause, stop, skip, previous)
 - ✅ Queue management (add, clear, view)
-- ✅ Search functionality with results display
-- ✅ Volume control (0-100%)
-- ✅ Track progress indication
+- ✅ Search functionality with results display and async loading
+- ✅ Volume control (0-100%) with mute/unmute
+- ✅ Track progress indication with real-time updates
+- ✅ Seek functionality (click/drag progress slider)
 - ✅ Current track information display
 - ✅ Configurable Lavalink integration
+- ✅ Shuffle mode with queue randomization
+- ✅ Repeat modes (Off, One, All)
+- ✅ Playlist management (create, save, load, delete)
+- ✅ Favorites system with heart icons
+- ✅ Comprehensive keyboard shortcuts
+- ✅ Status bar with operation feedback
+- ✅ Error handling and user notifications
 
 ### 4. **Build System** ✅
 - Gradle 8.5 with wrapper included
@@ -36,7 +44,7 @@ A complete, production-ready Java music player application with modern Material 
 - Easy to run: `./gradlew run` or `java -jar`
 
 ### 5. **Testing** ✅
-- 7 comprehensive unit tests
+- 20+ comprehensive unit tests
 - All tests passing
 - Tests cover:
   - Configuration loading
@@ -45,6 +53,11 @@ A complete, production-ready Java music player application with modern Material 
   - Volume control
   - Play/pause/stop functionality
   - Search functionality
+  - Playlist management
+  - Favorites system
+  - Shuffle and repeat modes
+  - Progress tracking and seeking
+  - Boundary conditions
 
 ### 6. **Documentation** ✅
 - Comprehensive README.md with:
