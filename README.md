@@ -111,9 +111,11 @@ The application configuration is located at `src/main/resources/config.json`:
 
 - **lavalink.host**: Lavalink server hostname
 - **lavalink.port**: Lavalink server port
-- **lavalink.password**: Lavalink server password
+- **lavalink.password**: Lavalink server password (**WARNING**: Change this default password before production use!)
 - **player.defaultVolume**: Default volume level (0-100)
 - **player.bufferDuration**: Audio buffer duration in milliseconds
+
+> ⚠️ **Security Note**: The default password in the configuration is for development only. Always change it to a secure password before deploying to production, or use environment variables for sensitive credentials.
 
 ## Setting up Lavalink Server
 

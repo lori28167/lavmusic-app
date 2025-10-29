@@ -285,31 +285,43 @@ public class MainUI {
     }
     
     private void setupBindings() {
-        // Update UI when current track changes
+        // Update UI when current track changes - using runLater for thread safety
         playerManager.currentTrackProperty().addListener((obs, old, track) -> {
-            Platform.runLater(() -> {
-                if (track != null) {
-                    currentTrackLabel.setText(track.getTitle());
-                    artistLabel.setText(track.getAuthor());
-                    durationLabel.setText(track.getFormattedDuration());
-                } else {
-                    currentTrackLabel.setText("No track playing");
-                    artistLabel.setText("");
-                    durationLabel.setText("0:00");
-                }
-            });
+            if (!Platform.isFxApplicationThread()) {
+                Platform.runLater(() -> updateCurrentTrackUI(track));
+            } else {
+                updateCurrentTrackUI(track);
+            }
         });
         
-        // Update play/pause button
+        // Update play/pause button - using runLater for thread safety
         playerManager.playingProperty().addListener((obs, old, playing) -> {
-            Platform.runLater(() -> {
-                String symbol = playing ? "⏸" : "▶";
-                playPauseButton.setText(symbol);
-            });
+            if (!Platform.isFxApplicationThread()) {
+                Platform.runLater(() -> updatePlayPauseButton(playing));
+            } else {
+                updatePlayPauseButton(playing);
+            }
         });
         
         // Update volume slider
         volumeSlider.setValue(playerManager.volumeProperty().get());
+    }
+    
+    private void updateCurrentTrackUI(Track track) {
+        if (track != null) {
+            currentTrackLabel.setText(track.getTitle());
+            artistLabel.setText(track.getAuthor());
+            durationLabel.setText(track.getFormattedDuration());
+        } else {
+            currentTrackLabel.setText("No track playing");
+            artistLabel.setText("");
+            durationLabel.setText("0:00");
+        }
+    }
+    
+    private void updatePlayPauseButton(boolean playing) {
+        String symbol = playing ? "⏸" : "▶";
+        playPauseButton.setText(symbol);
     }
     
     private void performSearch() {
