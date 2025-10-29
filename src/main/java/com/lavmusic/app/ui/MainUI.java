@@ -15,6 +15,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 
+import java.util.List;
+
 /**
  * Main UI for the Ticly Lavamusic application with Material Expressive design
  */
@@ -37,6 +39,7 @@ public class MainUI {
     private ListView<Track> queueListView;
     private TextField searchField;
     private ListView<Track> searchResultsView;
+    private Label statusLabel;
     
     // Material Design Colors
     private static final String PRIMARY_COLOR = "#6200EE";
@@ -63,8 +66,10 @@ public class MainUI {
         // Center: Main content
         root.setCenter(createMainContent());
         
-        // Bottom: Player controls
-        root.setBottom(createPlayerControls());
+        // Bottom container with player controls and status
+        VBox bottomContainer = new VBox();
+        bottomContainer.getChildren().addAll(createPlayerControls(), createStatusBar());
+        root.setBottom(bottomContainer);
         
         // Setup bindings
         setupBindings();
@@ -286,6 +291,28 @@ public class MainUI {
         return controls;
     }
     
+    private HBox createStatusBar() {
+        HBox statusBar = new HBox(10);
+        statusBar.setStyle("-fx-background-color: " + SURFACE_COLOR + "; " +
+                          "-fx-border-color: #E0E0E0; " +
+                          "-fx-border-width: 1 0 0 0; " +
+                          "-fx-padding: 5 20;");
+        statusBar.setAlignment(Pos.CENTER_LEFT);
+        
+        statusLabel = new Label("Ready");
+        statusLabel.setFont(Font.font("System", 10));
+        statusLabel.setTextFill(Color.GRAY);
+        
+        Label versionLabel = new Label("v1.0.0");
+        versionLabel.setFont(Font.font("System", 10));
+        versionLabel.setTextFill(Color.GRAY);
+        
+        HBox.setHgrow(statusLabel, Priority.ALWAYS);
+        
+        statusBar.getChildren().addAll(statusLabel, versionLabel);
+        return statusBar;
+    }
+    
     private Button createMaterialButton(String text) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: " + SECONDARY_COLOR + "; " +
@@ -479,6 +506,7 @@ public class MainUI {
     private void toggleShuffle() {
         playerManager.toggleShuffle();
         updateShuffleButton();
+        updateStatus("Shuffle " + (playerManager.isShuffleEnabled() ? "enabled" : "disabled"));
     }
     
     private void updateShuffleButton() {
@@ -497,6 +525,7 @@ public class MainUI {
     private void cycleRepeat() {
         playerManager.cycleRepeatMode();
         updateRepeatButton();
+        updateStatus("Repeat mode: " + playerManager.getRepeatMode());
     }
     
     private void updateRepeatButton() {
@@ -528,6 +557,7 @@ public class MainUI {
     
     private void skipPrevious() {
         playerManager.skipPrevious();
+        updateStatus("Restarted track");
     }
     
     private void saveCurrentQueueAsPlaylist() {
@@ -540,6 +570,7 @@ public class MainUI {
             if (!name.trim().isEmpty()) {
                 playerManager.saveQueueAsPlaylist(name.trim());
                 showInfo("Playlist saved", "Playlist '" + name + "' has been saved successfully.");
+                updateStatus("Playlist saved: " + name);
             }
         });
     }
@@ -562,28 +593,84 @@ public class MainUI {
     
     private void performSearch() {
         String query = searchField.getText().trim();
-        if (!query.isEmpty()) {
-            searchResultsView.getItems().clear();
-            searchResultsView.getItems().addAll(playerManager.search(query));
+        if (query.isEmpty()) {
+            showError("Empty Search", "Please enter a search query.");
+            return;
         }
+        
+        searchResultsView.getItems().clear();
+        
+        // Show loading indicator
+        Label loadingLabel = new Label("Searching...");
+        loadingLabel.setFont(Font.font("System", 14));
+        loadingLabel.setTextFill(Color.GRAY);
+        
+        // Disable search button temporarily
+        searchField.setDisable(true);
+        
+        // Run search in background to avoid blocking UI
+        new Thread(() -> {
+            try {
+                List<Track> results = playerManager.search(query);
+                
+                Platform.runLater(() -> {
+                    searchField.setDisable(false);
+                    
+                    if (results.isEmpty()) {
+                        showInfo("No Results", "No tracks found for: " + query);
+                    } else {
+                        searchResultsView.getItems().addAll(results);
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    searchField.setDisable(false);
+                    showError("Search Error", "Failed to search: " + e.getMessage());
+                });
+            }
+        }).start();
     }
     
     private void togglePlayPause() {
         if (playerManager.playingProperty().get()) {
             playerManager.pause();
+            updateStatus("Paused");
         } else {
             playerManager.play();
+            updateStatus("Playing");
         }
     }
     
     private void skipNext() {
         playerManager.skipNext();
         updateQueueView();
+        updateStatus("Skipped to next track");
     }
     
     private void clearQueue() {
         playerManager.clearQueue();
         updateQueueView();
+        updateStatus("Queue cleared");
+    }
+    
+    private void updateStatus(String message) {
+        if (statusLabel != null) {
+            statusLabel.setText(message);
+            
+            // Clear status after 3 seconds
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000);
+                    Platform.runLater(() -> {
+                        if (statusLabel.getText().equals(message)) {
+                            statusLabel.setText("Ready");
+                        }
+                    });
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+        }
     }
     
     private void updateQueueView() {

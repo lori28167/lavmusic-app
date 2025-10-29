@@ -275,10 +275,11 @@ public class MusicPlayerManager {
      */
     public void seek(double position) {
         if (currentTrack.get() != null) {
-            this.position.set(Math.max(0.0, Math.min(1.0, position)));
-            long newTime = (long) (position * currentTrack.get().getDuration());
+            double clampedPosition = Math.max(0.0, Math.min(1.0, position));
+            this.position.set(clampedPosition);
+            long newTime = (long) (clampedPosition * currentTrack.get().getDuration());
             trackStartTime = System.currentTimeMillis() - newTime;
-            logger.info("Seeked to position: {}", position);
+            logger.info("Seeked to position: {}", clampedPosition);
         }
     }
     
