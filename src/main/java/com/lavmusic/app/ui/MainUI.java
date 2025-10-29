@@ -7,6 +7,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -68,6 +70,10 @@ public class MainUI {
         setupBindings();
         
         Scene scene = new Scene(root, 1000, 700);
+        
+        // Add keyboard shortcuts
+        setupKeyboardShortcuts(scene);
+        
         return scene;
     }
     
@@ -155,11 +161,15 @@ public class MainUI {
         queueLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
         HBox.setHgrow(queueLabel, Priority.ALWAYS);
         
+        Button savePlaylistButton = createTextButton("💾", SECONDARY_COLOR);
+        savePlaylistButton.setTooltip(new Tooltip("Save as playlist"));
+        savePlaylistButton.setOnAction(e -> saveCurrentQueueAsPlaylist());
+        
         Button clearButton = createTextButton("🗑", ERROR_COLOR);
         clearButton.setTooltip(new Tooltip("Clear queue"));
         clearButton.setOnAction(e -> clearQueue());
         
-        queueHeader.getChildren().addAll(queueLabel, clearButton);
+        queueHeader.getChildren().addAll(queueLabel, savePlaylistButton, clearButton);
         
         // Queue list
         queueListView = new ListView<>();
@@ -353,6 +363,90 @@ public class MainUI {
         volumeSlider.setValue(playerManager.volumeProperty().get());
     }
     
+    private void setupKeyboardShortcuts(Scene scene) {
+        scene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            // Don't intercept keys when typing in search field
+            if (searchField.isFocused()) {
+                return;
+            }
+            
+            switch (event.getCode()) {
+                case SPACE:
+                    togglePlayPause();
+                    event.consume();
+                    break;
+                case RIGHT:
+                    if (event.isControlDown()) {
+                        skipNext();
+                    } else {
+                        // Seek forward 5 seconds
+                        if (playerManager.currentTrackProperty().get() != null) {
+                            double currentPos = playerManager.positionProperty().get();
+                            double newPos = Math.min(1.0, currentPos + 0.05);
+                            playerManager.seek(newPos);
+                        }
+                    }
+                    event.consume();
+                    break;
+                case LEFT:
+                    if (event.isControlDown()) {
+                        skipPrevious();
+                    } else {
+                        // Seek backward 5 seconds
+                        if (playerManager.currentTrackProperty().get() != null) {
+                            double currentPos = playerManager.positionProperty().get();
+                            double newPos = Math.max(0.0, currentPos - 0.05);
+                            playerManager.seek(newPos);
+                        }
+                    }
+                    event.consume();
+                    break;
+                case UP:
+                    // Increase volume
+                    int currentVol = playerManager.volumeProperty().get();
+                    playerManager.setVolume(Math.min(100, currentVol + 5));
+                    volumeSlider.setValue(playerManager.volumeProperty().get());
+                    event.consume();
+                    break;
+                case DOWN:
+                    // Decrease volume
+                    int vol = playerManager.volumeProperty().get();
+                    playerManager.setVolume(Math.max(0, vol - 5));
+                    volumeSlider.setValue(playerManager.volumeProperty().get());
+                    event.consume();
+                    break;
+                case S:
+                    if (event.isControlDown()) {
+                        toggleShuffle();
+                        event.consume();
+                    }
+                    break;
+                case R:
+                    if (event.isControlDown()) {
+                        cycleRepeat();
+                        event.consume();
+                    }
+                    break;
+                case F:
+                    if (event.isControlDown()) {
+                        searchField.requestFocus();
+                        event.consume();
+                    }
+                    break;
+                case M:
+                    // Mute/unmute
+                    if (playerManager.volumeProperty().get() > 0) {
+                        playerManager.setVolume(0);
+                    } else {
+                        playerManager.setVolume(50);
+                    }
+                    volumeSlider.setValue(playerManager.volumeProperty().get());
+                    event.consume();
+                    break;
+            }
+        });
+    }
+    
     private void updateCurrentTrackUI(Track track) {
         if (track != null) {
             currentTrackLabel.setText(track.getTitle());
@@ -436,6 +530,36 @@ public class MainUI {
         playerManager.skipPrevious();
     }
     
+    private void saveCurrentQueueAsPlaylist() {
+        TextInputDialog dialog = new TextInputDialog("My Playlist");
+        dialog.setTitle("Save Playlist");
+        dialog.setHeaderText("Save current queue as playlist");
+        dialog.setContentText("Playlist name:");
+        
+        dialog.showAndWait().ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                playerManager.saveQueueAsPlaylist(name.trim());
+                showInfo("Playlist saved", "Playlist '" + name + "' has been saved successfully.");
+            }
+        });
+    }
+    
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
+    private void showError(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+    
     private void performSearch() {
         String query = searchField.getText().trim();
         if (!query.isEmpty()) {
@@ -503,13 +627,38 @@ public class MainUI {
                 cell.getChildren().add(trackInfo);
                 
                 if (showAddButton) {
+                    // Favorite button
+                    Button favButton = createTextButton(
+                        playerManager.isFavorite(track) ? "❤" : "♡", 
+                        ERROR_COLOR
+                    );
+                    favButton.setTooltip(new Tooltip("Add to favorites"));
+                    favButton.setOnAction(e -> {
+                        if (playerManager.isFavorite(track)) {
+                            playerManager.removeFromFavorites(track);
+                            favButton.setText("♡");
+                        } else {
+                            playerManager.addToFavorites(track);
+                            favButton.setText("❤");
+                        }
+                    });
+                    
+                    // Add to queue button
                     Button addButton = createTextButton("+", SECONDARY_COLOR);
                     addButton.setTooltip(new Tooltip("Add to queue"));
                     addButton.setOnAction(e -> {
                         playerManager.addToQueue(track);
                         updateQueueView();
                     });
-                    cell.getChildren().add(addButton);
+                    
+                    cell.getChildren().addAll(favButton, addButton);
+                } else {
+                    // In queue view, show favorite indicator
+                    if (playerManager.isFavorite(track)) {
+                        Label favLabel = new Label("❤");
+                        favLabel.setTextFill(Color.web(ERROR_COLOR));
+                        cell.getChildren().add(favLabel);
+                    }
                 }
                 
                 setGraphic(cell);

@@ -1,6 +1,7 @@
 package com.lavmusic.app.player;
 
 import com.lavmusic.app.config.ConfigManager;
+import com.lavmusic.app.model.Playlist;
 import com.lavmusic.app.model.Track;
 import javafx.beans.property.*;
 import org.slf4j.Logger;
@@ -42,6 +43,8 @@ public class MusicPlayerManager {
     private long trackStartTime;
     private boolean shuffle;
     private RepeatMode repeatMode;
+    private List<Playlist> playlists;
+    private List<Track> favorites;
     
     public MusicPlayerManager(ConfigManager config) {
         this.config = config;
@@ -58,6 +61,8 @@ public class MusicPlayerManager {
         );
         this.shuffle = false;
         this.repeatMode = RepeatMode.OFF;
+        this.playlists = new ArrayList<>();
+        this.favorites = new ArrayList<>();
     }
     
     /**
@@ -366,5 +371,88 @@ public class MusicPlayerManager {
     
     public RepeatMode getRepeatMode() {
         return repeatMode;
+    }
+    
+    /**
+     * Create a new playlist
+     */
+    public Playlist createPlaylist(String name) {
+        Playlist playlist = new Playlist(name);
+        playlists.add(playlist);
+        logger.info("Created playlist: {}", name);
+        return playlist;
+    }
+    
+    /**
+     * Get all playlists
+     */
+    public List<Playlist> getPlaylists() {
+        return new ArrayList<>(playlists);
+    }
+    
+    /**
+     * Delete a playlist
+     */
+    public void deletePlaylist(Playlist playlist) {
+        playlists.remove(playlist);
+        logger.info("Deleted playlist: {}", playlist.getName());
+    }
+    
+    /**
+     * Load a playlist into the queue
+     */
+    public void loadPlaylist(Playlist playlist) {
+        clearQueue();
+        for (Track track : playlist.getTracks()) {
+            addToQueue(track);
+        }
+        logger.info("Loaded playlist: {}", playlist.getName());
+    }
+    
+    /**
+     * Save current queue as a playlist
+     */
+    public Playlist saveQueueAsPlaylist(String name) {
+        List<Track> currentQueue = new ArrayList<>(queue);
+        if (currentTrack.get() != null) {
+            currentQueue.add(0, currentTrack.get());
+        }
+        
+        Playlist playlist = new Playlist(name, currentQueue);
+        playlists.add(playlist);
+        logger.info("Saved queue as playlist: {}", name);
+        return playlist;
+    }
+    
+    /**
+     * Add a track to favorites
+     */
+    public void addToFavorites(Track track) {
+        if (!favorites.contains(track)) {
+            favorites.add(track);
+            logger.info("Added to favorites: {}", track);
+        }
+    }
+    
+    /**
+     * Remove a track from favorites
+     */
+    public void removeFromFavorites(Track track) {
+        favorites.remove(track);
+        logger.info("Removed from favorites: {}", track);
+    }
+    
+    /**
+     * Check if a track is in favorites
+     */
+    public boolean isFavorite(Track track) {
+        return favorites.contains(track);
+    }
+    
+    /**
+     * Get all favorite tracks
+     */
+    public List<Track> getFavorites() {
+        return new ArrayList<>(favorites);
     }
 }
