@@ -1,0 +1,12 @@
+{
+  "lavalink": {
+    "host": "localhost",
+    "port": 2333,
+    "password": "youshallnotpass"
+  },
+  "player": {
+    "defaultVolume": 50,
+    "bufferDuration": 400
+  },
+  "_note": "WARNING: Change the Lavalink password before deploying to production. Use environment variables or secure configuration management for sensitive credentials."
+}

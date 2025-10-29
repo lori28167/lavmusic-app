@@ -1,0 +1,36 @@
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+.gradletasknamecache
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+lavmusic.log
+
+# Java
+*.class
+*.war
+*.ear
+hs_err_pid*
+# Exclude built JARs except gradle wrapper
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# Application specific
+config/local.json
