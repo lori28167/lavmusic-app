@@ -1,5 +1,7 @@
 # Ticly Lavamusic App
 
+![Build JAR](https://github.com/lori28167/lavmusic-app/workflows/Build%20JAR/badge.svg)
+
 A modern Java music player application featuring a Material Expressive UI design. This application is built to integrate with Lavalink for music streaming and playback.
 
 ## Features
