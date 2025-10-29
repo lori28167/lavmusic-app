@@ -1,7 +1,7 @@
 {
   "lavalink": {
-    "host": "lavalink.jirayu.net",
-    "port": 13592,
+    "host": "localhost",
+    "port": 2333,
     "password": "youshallnotpass"
   },
   "player": {
