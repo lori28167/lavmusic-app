@@ -1,4 +1,4 @@
-# LavMusic App
+# Ticly Lavamusic App
 
 A modern Java music player application featuring a Material Expressive UI design. This application is built to integrate with Lavalink for music streaming and playback.
 

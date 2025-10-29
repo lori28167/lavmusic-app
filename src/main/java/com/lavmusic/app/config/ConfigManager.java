@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Configuration manager for the LavMusic application
+ * Configuration manager for the Ticly Lavamusic application
  */
 public class ConfigManager {
     private static final String CONFIG_FILE = "/config.json";
