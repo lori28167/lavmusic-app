@@ -137,8 +137,8 @@ The application configuration is located at `src/main/resources/config.json`:
 ```json
 {
   "lavalink": {
-    "host": "localhost",
-    "port": 2333,
+    "host": "lavalink.jirayu.net",
+    "port": 13592,
     "password": "youshallnotpass"
   },
   "player": {
@@ -157,6 +157,16 @@ The application configuration is located at `src/main/resources/config.json`:
 - **player.bufferDuration**: Audio buffer duration in milliseconds
 
 > ⚠️ **Security Note**: The default password in the configuration is for development only. Always change it to a secure password before deploying to production, or use environment variables for sensitive credentials.
+
+### Search Functionality
+
+The application now includes working search functionality via Lavalink integration:
+
+- **Online Mode**: When connected to a Lavalink server, the app searches YouTube for tracks in real-time
+- **Offline Mode**: When Lavalink is unavailable, the app falls back to demo results for testing
+- **Search Provider**: Uses YouTube search via Lavalink's REST API (`ytsearch:` prefix)
+
+The search will automatically try to connect to the configured Lavalink server and gracefully handle connection failures.
 
 ## Setting up Lavalink Server
 
