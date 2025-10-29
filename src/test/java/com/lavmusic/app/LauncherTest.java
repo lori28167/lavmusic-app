@@ -23,7 +23,7 @@ class LauncherTest {
         // Verify that the Launcher class has a main method with the correct signature
         assertDoesNotThrow(() -> {
             Class<?> launcherClass = Class.forName("com.lavmusic.app.Launcher");
-            var mainMethod = launcherClass.getMethod("main", String[].class);
+            java.lang.reflect.Method mainMethod = launcherClass.getMethod("main", String[].class);
             assertNotNull(mainMethod);
             assertEquals(void.class, mainMethod.getReturnType());
             assertTrue(java.lang.reflect.Modifier.isStatic(mainMethod.getModifiers()));
