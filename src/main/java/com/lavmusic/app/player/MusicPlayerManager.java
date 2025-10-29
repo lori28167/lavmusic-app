@@ -7,7 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -17,6 +21,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class MusicPlayerManager {
     private static final Logger logger = LoggerFactory.getLogger(MusicPlayerManager.class);
     
+    /**
+     * Repeat modes for playback
+     */
+    public enum RepeatMode {
+        OFF,      // No repeat
+        ONE,      // Repeat current track
+        ALL       // Repeat entire queue
+    }
+    
     private final ConfigManager config;
     private final List<Track> queue;
     private final ObjectProperty<Track> currentTrack;
@@ -25,6 +38,10 @@ public class MusicPlayerManager {
     private final DoubleProperty position;
     private final AtomicBoolean initialized;
     private final LavalinkClient lavalinkClient;
+    private Timer progressTimer;
+    private long trackStartTime;
+    private boolean shuffle;
+    private RepeatMode repeatMode;
     
     public MusicPlayerManager(ConfigManager config) {
         this.config = config;
@@ -39,6 +56,8 @@ public class MusicPlayerManager {
             config.getLavalinkPort(), 
             config.getLavalinkPassword()
         );
+        this.shuffle = false;
+        this.repeatMode = RepeatMode.OFF;
     }
     
     /**
@@ -92,6 +111,9 @@ public class MusicPlayerManager {
         currentTrack.set(track);
         playing.set(true);
         position.set(0.0);
+        trackStartTime = System.currentTimeMillis();
+        
+        startProgressTimer();
         
         // In a real implementation, you would send play command to Lavalink
     }
@@ -103,6 +125,7 @@ public class MusicPlayerManager {
         if (currentTrack.get() != null) {
             logger.info("Resuming playback");
             playing.set(true);
+            startProgressTimer();
         } else if (!queue.isEmpty()) {
             playNext();
         }
@@ -114,6 +137,7 @@ public class MusicPlayerManager {
     public void pause() {
         logger.info("Pausing playback");
         playing.set(false);
+        stopProgressTimer();
     }
     
     /**
@@ -124,6 +148,7 @@ public class MusicPlayerManager {
         playing.set(false);
         currentTrack.set(null);
         position.set(0.0);
+        stopProgressTimer();
     }
     
     /**
@@ -141,8 +166,114 @@ public class MusicPlayerManager {
         if (!queue.isEmpty()) {
             Track track = queue.remove(0);
             play(track);
+        } else if (repeatMode == RepeatMode.ALL && currentTrack.get() != null) {
+            // If repeat all is enabled and queue is empty, we just finished the last track
+            // In a real implementation, we'd reload the original queue
+            logger.info("Repeat all enabled but queue is empty");
+            stop();
         } else {
             stop();
+        }
+    }
+    
+    /**
+     * Play the previous track
+     */
+    public void skipPrevious() {
+        logger.info("Skipping to previous track");
+        // In a simple implementation, we just restart the current track
+        // A full implementation would maintain a history of played tracks
+        if (currentTrack.get() != null) {
+            play(currentTrack.get());
+        }
+    }
+    
+    /**
+     * Start the progress timer
+     */
+    private void startProgressTimer() {
+        stopProgressTimer();
+        
+        progressTimer = new Timer(true);
+        progressTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (playing.get() && currentTrack.get() != null) {
+                    long elapsed = System.currentTimeMillis() - trackStartTime;
+                    double progress = (double) elapsed / currentTrack.get().getDuration();
+                    position.set(Math.min(progress, 1.0));
+                    
+                    // Check if track has ended
+                    if (progress >= 1.0) {
+                        handleTrackEnd();
+                    }
+                }
+            }
+        }, 0, 100); // Update every 100ms
+    }
+    
+    /**
+     * Stop the progress timer
+     */
+    private void stopProgressTimer() {
+        if (progressTimer != null) {
+            progressTimer.cancel();
+            progressTimer = null;
+        }
+    }
+    
+    /**
+     * Handle track end
+     */
+    private void handleTrackEnd() {
+        stopProgressTimer();
+        
+        if (repeatMode == RepeatMode.ONE) {
+            // Repeat current track
+            Track current = currentTrack.get();
+            if (current != null) {
+                play(current);
+            }
+        } else {
+            // Play next track
+            skipNext();
+        }
+    }
+    
+    /**
+     * Toggle shuffle mode
+     */
+    public void toggleShuffle() {
+        shuffle = !shuffle;
+        logger.info("Shuffle: {}", shuffle ? "ON" : "OFF");
+        
+        if (shuffle && !queue.isEmpty()) {
+            Collections.shuffle(queue, new Random());
+            logger.info("Queue shuffled");
+        }
+    }
+    
+    /**
+     * Cycle through repeat modes
+     */
+    public void cycleRepeatMode() {
+        repeatMode = switch (repeatMode) {
+            case OFF -> RepeatMode.ONE;
+            case ONE -> RepeatMode.ALL;
+            case ALL -> RepeatMode.OFF;
+        };
+        logger.info("Repeat mode: {}", repeatMode);
+    }
+    
+    /**
+     * Seek to a position in the current track (0.0 to 1.0)
+     */
+    public void seek(double position) {
+        if (currentTrack.get() != null) {
+            this.position.set(Math.max(0.0, Math.min(1.0, position)));
+            long newTime = (long) (position * currentTrack.get().getDuration());
+            trackStartTime = System.currentTimeMillis() - newTime;
+            logger.info("Seeked to position: {}", position);
         }
     }
     
@@ -201,6 +332,7 @@ public class MusicPlayerManager {
      */
     public void shutdown() {
         logger.info("Shutting down music player");
+        stopProgressTimer();
         stop();
         queue.clear();
         lavalinkClient.shutdown();
@@ -226,5 +358,13 @@ public class MusicPlayerManager {
     
     public List<Track> getQueue() {
         return new ArrayList<>(queue);
+    }
+    
+    public boolean isShuffleEnabled() {
+        return shuffle;
+    }
+    
+    public RepeatMode getRepeatMode() {
+        return repeatMode;
     }
 }

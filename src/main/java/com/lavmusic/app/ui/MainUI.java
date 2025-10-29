@@ -23,8 +23,13 @@ public class MainUI {
     // UI Components
     private Label currentTrackLabel;
     private Label artistLabel;
+    private Label currentTimeLabel;
     private Label durationLabel;
     private Button playPauseButton;
+    private Button previousButton;
+    private Button nextButton;
+    private Button shuffleButton;
+    private Button repeatButton;
     private Slider volumeSlider;
     private Slider progressSlider;
     private ListView<Track> queueListView;
@@ -114,6 +119,7 @@ public class MainUI {
         searchField = new TextField();
         searchField.setPromptText("Enter song name or artist...");
         searchField.setStyle("-fx-background-radius: 8; -fx-padding: 10;");
+        searchField.setOnAction(e -> performSearch()); // Support Enter key
         HBox.setHgrow(searchField, Priority.ALWAYS);
         
         Button searchButton = createMaterialButton("Search");
@@ -187,25 +193,47 @@ public class MainUI {
         HBox progressBox = new HBox(10);
         progressBox.setAlignment(Pos.CENTER);
         
-        Label timeLabel = new Label("0:00");
-        timeLabel.setFont(Font.font("System", 10));
+        currentTimeLabel = new Label("0:00");
+        currentTimeLabel.setFont(Font.font("System", 10));
+        currentTimeLabel.setMinWidth(40);
         
-        progressSlider = new Slider(0, 100, 0);
+        progressSlider = new Slider(0, 1, 0);
         progressSlider.setStyle("-fx-background-radius: 8;");
+        progressSlider.setOnMousePressed(e -> {
+            // Allow seeking when clicking on slider
+            if (playerManager.currentTrackProperty().get() != null) {
+                playerManager.seek(progressSlider.getValue());
+            }
+        });
+        progressSlider.setOnMouseDragged(e -> {
+            // Allow seeking when dragging slider
+            if (playerManager.currentTrackProperty().get() != null) {
+                playerManager.seek(progressSlider.getValue());
+            }
+        });
         HBox.setHgrow(progressSlider, Priority.ALWAYS);
         
         durationLabel = new Label("0:00");
         durationLabel.setFont(Font.font("System", 10));
+        durationLabel.setMinWidth(40);
         
-        progressBox.getChildren().addAll(timeLabel, progressSlider, durationLabel);
+        progressBox.getChildren().addAll(currentTimeLabel, progressSlider, durationLabel);
         
         // Control buttons
         HBox controlButtons = new HBox(15);
         controlButtons.setAlignment(Pos.CENTER);
         
-        Button previousButton = createTextButton("⏮", PRIMARY_COLOR);
-        previousButton.setDisable(true);
+        // Shuffle button
+        shuffleButton = createTextButton("🔀", PRIMARY_COLOR);
+        shuffleButton.setTooltip(new Tooltip("Shuffle"));
+        shuffleButton.setOnAction(e -> toggleShuffle());
         
+        // Previous button
+        previousButton = createTextButton("⏮", PRIMARY_COLOR);
+        previousButton.setTooltip(new Tooltip("Previous"));
+        previousButton.setOnAction(e -> skipPrevious());
+        
+        // Play/Pause button
         playPauseButton = createTextButton("▶", PRIMARY_COLOR);
         playPauseButton.setStyle("-fx-background-color: " + PRIMARY_COLOR + "; " +
                                 "-fx-text-fill: white; " +
@@ -214,8 +242,15 @@ public class MainUI {
                                 "-fx-font-size: 24;");
         playPauseButton.setOnAction(e -> togglePlayPause());
         
-        Button nextButton = createTextButton("⏭", PRIMARY_COLOR);
+        // Next button
+        nextButton = createTextButton("⏭", PRIMARY_COLOR);
+        nextButton.setTooltip(new Tooltip("Next"));
         nextButton.setOnAction(e -> skipNext());
+        
+        // Repeat button
+        repeatButton = createTextButton("🔁", PRIMARY_COLOR);
+        repeatButton.setTooltip(new Tooltip("Repeat: Off"));
+        repeatButton.setOnAction(e -> cycleRepeat());
         
         // Volume control
         HBox volumeBox = new HBox(10);
@@ -233,7 +268,9 @@ public class MainUI {
         
         volumeBox.getChildren().addAll(volumeIcon, volumeSlider);
         
-        controlButtons.getChildren().addAll(previousButton, playPauseButton, nextButton, volumeBox);
+        controlButtons.getChildren().addAll(
+            shuffleButton, previousButton, playPauseButton, nextButton, repeatButton, volumeBox
+        );
         
         controls.getChildren().addAll(trackInfo, progressBox, controlButtons);
         return controls;
@@ -303,6 +340,15 @@ public class MainUI {
             }
         });
         
+        // Update progress slider - using runLater for thread safety
+        playerManager.positionProperty().addListener((obs, old, position) -> {
+            if (!Platform.isFxApplicationThread()) {
+                Platform.runLater(() -> updateProgressUI(position.doubleValue()));
+            } else {
+                updateProgressUI(position.doubleValue());
+            }
+        });
+        
         // Update volume slider
         volumeSlider.setValue(playerManager.volumeProperty().get());
     }
@@ -322,6 +368,72 @@ public class MainUI {
     private void updatePlayPauseButton(boolean playing) {
         String symbol = playing ? "⏸" : "▶";
         playPauseButton.setText(symbol);
+    }
+    
+    private void updateProgressUI(double position) {
+        progressSlider.setValue(position);
+        
+        if (playerManager.currentTrackProperty().get() != null) {
+            long currentMs = (long) (position * playerManager.currentTrackProperty().get().getDuration());
+            long currentSeconds = currentMs / 1000;
+            long minutes = currentSeconds / 60;
+            long seconds = currentSeconds % 60;
+            currentTimeLabel.setText(String.format("%d:%02d", minutes, seconds));
+        }
+    }
+    
+    private void toggleShuffle() {
+        playerManager.toggleShuffle();
+        updateShuffleButton();
+    }
+    
+    private void updateShuffleButton() {
+        if (playerManager.isShuffleEnabled()) {
+            shuffleButton.setStyle("-fx-background-color: " + SECONDARY_COLOR + "; " +
+                                  "-fx-background-radius: 50%; " +
+                                  "-fx-cursor: hand; " +
+                                  "-fx-padding: 10;");
+        } else {
+            shuffleButton.setStyle("-fx-background-color: transparent; " +
+                                  "-fx-cursor: hand; " +
+                                  "-fx-padding: 10;");
+        }
+    }
+    
+    private void cycleRepeat() {
+        playerManager.cycleRepeatMode();
+        updateRepeatButton();
+    }
+    
+    private void updateRepeatButton() {
+        String tooltip = switch (playerManager.getRepeatMode()) {
+            case OFF -> "Repeat: Off";
+            case ONE -> "Repeat: One";
+            case ALL -> "Repeat: All";
+        };
+        repeatButton.setTooltip(new Tooltip(tooltip));
+        
+        if (playerManager.getRepeatMode() != MusicPlayerManager.RepeatMode.OFF) {
+            repeatButton.setStyle("-fx-background-color: " + SECONDARY_COLOR + "; " +
+                                 "-fx-background-radius: 50%; " +
+                                 "-fx-cursor: hand; " +
+                                 "-fx-padding: 10;");
+            
+            if (playerManager.getRepeatMode() == MusicPlayerManager.RepeatMode.ONE) {
+                repeatButton.setText("🔂");
+            } else {
+                repeatButton.setText("🔁");
+            }
+        } else {
+            repeatButton.setText("🔁");
+            repeatButton.setStyle("-fx-background-color: transparent; " +
+                                 "-fx-cursor: hand; " +
+                                 "-fx-padding: 10;");
+        }
+    }
+    
+    private void skipPrevious() {
+        playerManager.skipPrevious();
     }
     
     private void performSearch() {
