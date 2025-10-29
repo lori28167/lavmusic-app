@@ -75,6 +75,23 @@ lavmusic-app/
 # The JAR will be located at: build/libs/lavmusic-app-1.0.0.jar
 ```
 
+## Continuous Integration
+
+The project includes a GitHub Actions workflow that automatically builds the JAR file on every push to `main` or `develop` branches, and on pull requests.
+
+### GitHub Actions Workflow
+
+The workflow:
+- Sets up Java 17 (Temurin distribution)
+- Builds the project using Gradle
+- Runs all tests
+- Uploads the JAR artifact (available for 30 days)
+- Uploads distribution archives (ZIP/TAR)
+
+You can download the built artifacts from the Actions tab in the GitHub repository after each successful build.
+
+To manually trigger a build, go to the Actions tab and run the "Build JAR" workflow using the "Run workflow" button.
+
 ## Running the Application
 
 ### Method 1: Using Gradle

@@ -2,8 +2,6 @@
 .gradle/
 build/
 gradle-app.setting
-!gradle-wrapper.jar
-!gradle-wrapper.properties
 .gradletasknamecache
 
 # IDEs
@@ -27,10 +25,12 @@ lavmusic.log
 
 # Java
 *.class
-*.jar
 *.war
 *.ear
 hs_err_pid*
+# Exclude built JARs except gradle wrapper
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
 
 # Application specific
 config/local.json
